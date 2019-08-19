@@ -1,15 +1,9 @@
-# TASK MASTER
+# EXPENSE NOTE
 
-Simple and intuitive web based task management for software development
+Expense note taking 
 
 
 ![Alt text](https://github.com/neonerdy/expensenote/blob/master/expense.JPG "Expense")
-![Alt text](https://github.com/neonerdy/expensenote/blob/master/account.JPG "Account")
-![Alt text](https://github.com/neonerdy/expensenote/blob/master/chart.JPG "Chart")
-![Alt text](https://github.com/neonerdy/expensenote/blob/master/addexpense.JPG "Add Expense")
-
-
-
 
 
 ## HOW TO RUN
