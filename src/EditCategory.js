@@ -1,8 +1,9 @@
-
 import React, {Component} from 'react';
 import axios from 'axios';
-import {Input,Button, Card,Row} from 'react-materialize';
+import {Card, Button,Form} from 'react-bootstrap';
+import {Header} from './Header';
 import config from './Config';
+
 
 export class EditCategory extends Component
 {
@@ -12,21 +13,22 @@ export class EditCategory extends Component
         this.state = {
             error: {},
             groups : ['Bills','Car','Debt/Payable','Education','Entertaintment','Food',
-                'Gadget','Groceries','Hobbies','Household','Health Care','Insurance',
-                'Personal Care','Pets','Shopping','Social','Sport and Recreation',
-                'Tax','Transportation','Utilities','Vacation','Other'],
+                      'Gadget','Groceries','Hobbies','Household','Health Care','Insurance',
+                      'Personal Care','Pets','Shopping','Social','Sport and Recreation',
+                      'Tax','Transportation','Utilities','Vacation','Other'],
             id: '',
             categoryName: '',
             group: '',
-            budget: 0,
-            isUsed: false
+            monthlyBudget: 0   
         }
     }
 
     componentDidMount() {
+
         let id = this.props.match.params.id;
         this.getCategoryById(id);
     }
+
 
     onValueChange = (e) => {
         this.setState({
@@ -35,17 +37,18 @@ export class EditCategory extends Component
     }
 
     getCategoryById = (id) => {
-        axios.get(config.apiUrl + "/api/category/getbyid/" + id).then(response=> {
+        axios.get(config.apiUrl + '/category/' + id).then(response => {
             this.setState({
-                id: response.data.id,
+                id:response.data.id,
                 categoryName: response.data.categoryName,
                 group: response.data.group,
-                budget: response.data.budget
+                monthlyBudget: response.data.monthlyBudget
             })
         })
     }
 
-    validate = () => {
+
+    validateCategory = () => {
 
         let isValid = true;
         let error = {};
@@ -67,95 +70,98 @@ export class EditCategory extends Component
 
     }
 
+
     updateCategory = () => {
 
         let category = {
             id: this.state.id,
             categoryName: this.state.categoryName,
             group: this.state.group,
-            budget: this.state.budget
+            monthlyBudget: this.state.monthlyBudget
         }
 
-        console.log(category);
-
-        let isValid = this.validate();
+        let isValid = this.validateCategory();
         if (isValid) {
-            axios.put(config.apiUrl + "/api/category/update", category).then(response => {
+            axios.put(config.apiUrl + "/category/update", category).then(response => {
                 this.props.history.push("/category");  
             })
-
         }
-    }
-
-    deleteIfNotUsed = (id) => {
-
-      
-        axios.get(config.apiUrl + "/api/category/isused/" + id).then(response=> {
-           if (response.data == true) {
-                alert("Can't delete, this category already used by expense");     
-           } else {
-                axios.delete(config.apiUrl + "/api/category/delete/"  + id).then(response=> {
-                    this.props.history.push("/category");
-                })      
-           }
-        })
-      
 
     }
-
 
     deleteCategory = () => {
 
         let id = this.props.match.params.id;
-        var isDelete = window.confirm("Are you sure want to delete this category?");
-        if (isDelete) 
-        {
-            this.deleteIfNotUsed(id);
+        let isConfirmed = window.confirm("Are you sure want to delete this account?");
+        
+        if (isConfirmed) {
+            axios.delete(config.apiUrl + '/category/delete/' + id).then(response => {
+                this.props.history.push('/category');
+            })
         }
     }
 
-   
+
+
     render() {
 
         let errStyle = {
             color: 'darkred'
         }
 
-        return (
-            <div className="container">
-                <Card>
-                    <span className="card-title">Edit Category</span>
-                    <br/>
-                    <Row>
-                        <div style={errStyle}>{this.state.error.categoryName}</div>
-                        <label>CATEGORY NAME</label>
-                        <Input s={12} name="categoryName" onChange={this.onValueChange} value={this.state.categoryName}/>
-                    </Row>
-                    <Row>
-                      <div style={errStyle}>{this.state.error.group}</div>
-                       <label>GROUP</label>
-                        <Input type='select' s={12} name="group"
-                            onChange={this.onValueChange}  value={this.state.group}>
-                            <option disabled selected>Select Group</option>
-                            {this.state.groups.map(group=> 
-                                <option value={group}>{group}</option>    
-                            )}
-                        </Input>
-                    </Row>
-                    <Row>
-                        <div style={errStyle}>{this.state.error.budget}</div>
-                        <label>MONTHLY BUDGET</label>
-                        <Input s={12} type='number' name="budget" onChange={this.onValueChange} value={this.state.budget}/>
-                    </Row>
+        return(
+            <div>
+            
+            <Header/>
+              <br/>
+            
+                <div class="col d-flex justify-content-center">
+                <Card style={{ width: '60rem' }}>
+                    <Card.Body>
 
-                    <br/>
-                    <Button waves="light" onClick={this.updateCategory}>UPDATE</Button>&nbsp;&nbsp;&nbsp;
-                    <Button className="btn waves-effect waves-light red lighten-2" onClick={this.deleteCategory}>DELETE</Button>
+                         <h3><small>Edit Category</small></h3>
+                        <br/><br/>
 
+                        <Form.Group controlId="formExpense">
+
+                            <Form.Label>Category Name</Form.Label>
+                            <Form.Control type="text" name="categoryName" onChange={this.onValueChange} value={this.state.categoryName}/>
+                            <div style={errStyle}>{this.state.error.categoryName}</div>
+                            <br/>
+                            
+                            <Form.Label>Type</Form.Label>
+                            <Form.Control as="select" value={this.state.group} name="group" onChange={this.onValueChange} value={this.state.group}>
+                                <option value="" selected>Please Select</option>
+                                {this.state.groups.map(g=> 
+                                    <option value={g} selected>{g}</option>
+                                )}
+                            </Form.Control>
+                            <div style={errStyle}>{this.state.error.group}</div>
+                            <br/>
+
+                            <Form.Label>Monthly Budget</Form.Label>
+                            <Form.Control type="text" name="monthlyBudget" onChange={this.onValueChange} value={this.state.monthlyBudget}/>
+                            <div style={errStyle}>{this.state.error.monthlyBudget}</div>
+
+                            <br/>
+
+                        </Form.Group>     
+
+                        <br/><br/>
+                        <Button variant="primary" onClick={this.updateCategory}>Update</Button>&nbsp;
+                        <Button variant="danger" onClick={this.deleteCategory}>Delete</Button>
+                        
+                   
+                    </Card.Body>
                 </Card>
-            
-            
+        
+           </div>
+
+
+
+
             </div>
+
         )
     }
 

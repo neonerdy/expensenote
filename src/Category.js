@@ -1,107 +1,93 @@
-
 import React, {Component} from 'react';
 import axios from 'axios';
-import {Input,Button, Card,Row, Collection, CollectionItem} from 'react-materialize';
-import config from './Config';
+import {Button,Form,Navbar,Nav,Card,CardColumns,
+  Dropdown, Table,ButtonGroup} from 'react-bootstrap';
 
+  import {Header} from './Header';
+  import config from './Config';
+  
 export class Category extends Component
 {
 
     constructor(props) {
         super(props);
         this.state = {
-            initialCategories: [],
             categories: []
         }
     }
 
     componentDidMount() {
-        this.getAllCategories();
+        this.getCategories();
     }
 
-    renderIcon = (category) => {
-        if (category.budget > 0) 
-        {
-            return(
-                <i class="material-icons circle grey darken-1">bookmark_border</i>
-            )
-        } 
-    }
-
-    getAllCategories = () => {
-        axios.get(config.apiUrl + "/api/category/getall").then(response => {
+    getCategories = () => {
+        axios.get(config.apiUrl + '/category').then(response=> {
             this.setState({
-                initialCategories: response.data,
                 categories: response.data
             })
-
-            console.log(response.data);
         })
     }
 
 
-    onSearchChange = (e) => {
-
-        let filteredCategory = this.state.initialCategories.filter(category => category.categoryName.toLowerCase()
-            .includes(e.target.value.toLowerCase()) || 
-            category.group.toLowerCase().includes(e.target.value.toLowerCase()));
-             
-        if (e.target.value == '')
-        {
-            this.setState( {
-                categories: this.state.initialCategories
-            })
-        }
-        else {
-            this.setState( {
-                categories: filteredCategory
-            })
-    
-        }
-        
-    }
-
     addCategory = () => {
-        this.props.history.push("/add-category");
+        this.props.history.push('/add-category');
     }
 
     editCategory = (id) => {
-        this.props.history.push("/edit-category/" + id);
+        this.props.history.push('/edit-category/' + id);
     }
+
+    
 
 
     render() {
 
         let totalBudget = 0;
-        this.state.categories.forEach(category=> 
-            totalBudget += category.budget
+       
+        this.state.categories.map(category=> 
+            totalBudget += category.monthlyBudget
         )
-
-        totalBudget = totalBudget.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-
+        
         return(
-            <div className="container">
-                <Card>
-                    <span className="card-title">View <b>{this.state.categories.length}</b> Categeries, total budget :  <b>{totalBudget}</b> </span>
-                    <br/>
-                    <Button waves="light" onClick={this.addCategory}>ADD CATEGORY</Button>
-                    <Input placeholder="Search Category" onChange={this.onSearchChange}/>
-                    <Collection>
-                    
-                    {this.state.categories.map(category => 
-                        <CollectionItem className="avatar" key={category.id} onClick={()=>this.editCategory(category.id)}>
-                            {this.renderIcon(category)}
-                            <span class="secondary-content" >{category.budget}</span>
-                            <div class="title">{category.categoryName}</div>
-                            <div>{category.group}</div>
-                        </CollectionItem>
-                    )}
-                    
-                    </Collection>
-                
+
+        <div>
+             <Header/>
+             <br/>
+                <div class="col d-flex justify-content-center">
+
+                <Card style={{ width: '60rem' }}>
+                    <Card.Body>
+                        <h3><small>View <b>{this.state.categories.length}</b> Categories, total budget : <b>{totalBudget}</b></small></h3>
+                        <br/>
+                        <Button variant="outline-primary" onClick={this.addCategory}>Add Category</Button>
+                        <br/><br/>
+                        <CardColumns>
+
+                            {this.state.categories.map(c=> 
+                                
+                                <Card bg="light" style={{ width: '18rem', cursor: 'pointer' }} onClick={()=>this.editCategory(c.id)}>
+                                    <Card.Header>{c.group.toUpperCase()}</Card.Header>
+                                    <Card.Body>
+                                        <Card.Title>{c.categoryName}</Card.Title>
+                                        <Card.Text>
+                                            <h1><small>{c.monthlyBudget}</small></h1>
+                                            Budget
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
+                             )}
+
+
+                        </CardColumns>
+                        
+                    </Card.Body>
                 </Card>
-            </div>
+            
+                </div>
+           </div>
         )
+        
     }
+
+
 }

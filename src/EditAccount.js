@@ -1,8 +1,7 @@
-
-
 import React, {Component} from 'react';
 import axios from 'axios';
-import {Input,Button, Card,Row} from 'react-materialize';
+import {Card, Button,Form} from 'react-bootstrap';
+import {Header} from './Header';
 import config from './Config';
 
 
@@ -13,19 +12,19 @@ export class EditAccount extends Component
         super(props);
         this.state = {
             error: {},
-            types: ['Cash', 'Bank', 'Credit Card'],
+            types: ['Cash','Bank','Credit Card'],
+            id: '',
             accountName: '',
             type: '',
-            balance: 0
+            balance: '',
+            description:''        
         }
     }
 
     componentDidMount() {
-        
-        let accountId = this.props.match.params.id;
-        this.getAccountById(accountId);
+        let id = this.props.match.params.id;
+        this.getAccountById(id);
     }
-
 
     onValueChange = (e) => {
         this.setState({
@@ -35,65 +34,20 @@ export class EditAccount extends Component
 
 
     getAccountById = (id) => {
-
-        axios.get(config.apiUrl + "/api/account/getbyid/" + id).then(response=> {
+        axios.get(config.apiUrl + '/account/' + id).then(response => {
             this.setState({
+                id: response.data.id,
                 accountName: response.data.accountName,
                 type: response.data.type,
-                balance: response.data.balance
-            })  
-
-            console.log(this.state.type);
-        })
-
-    }
-
-    
-    updateAccount = () => {
-
-        let account = {
-            id: this.props.match.params.id,
-            accountName: this.state.accountName,
-            type: this.state.type,
-            balance: this.state.balance
-        }
-
-        let isValid = this.validate();
-        if (isValid) {
-            axios.put(config.apiUrl + "/api/account/update",account).then(response => {
-                this.props.history.push("/account");  
+                balance: response.data.balance,
+                description: response.data.description
             })
-        }
-    }
-
-    deleteIfNotUsed = (id) => {
-
-        axios.get(config.apiUrl + "/api/account/isused/" + id).then(response=> {
-           if (response.data == true) {
-                alert("Can't delete, this account already used by expense");     
-           } else {
-                axios.delete(config.apiUrl + "/api/account/delete/" + id).then(response => {
-                    this.props.history.push("/account");  
-                })   
-           }
         })
-    }
-
-
-    deleteAccount = () => {
-
-        let id = this.props.match.params.id;
-        var isDelete = window.confirm("Are you sure want to delete this account?");
-        
-        if (isDelete) 
-        {
-           this.deleteIfNotUsed(id);
-        }
 
     }
 
 
-    validate = () => {
+    validateAccount = () => {
 
         let isValid = true;
         let error = {};
@@ -119,7 +73,45 @@ export class EditAccount extends Component
         return isValid;
 
     }
-   
+
+
+    updateAccount = () => {
+
+        let isValid = this.validateAccount();
+
+        if (isValid) {
+
+            let account = {
+                id: this.state.id,
+                accountName: this.state.accountName,
+                type: this.state.type,
+                balance: this.state.balance,
+                description: this.state.description
+            }
+
+            axios.put(config.apiUrl +  '/account/update', account).then(response=> {
+                this.props.history.push('/account');
+            })
+        }
+
+    }
+
+
+    deleteAccount = () => {
+
+        let id = this.props.match.params.id;
+        let isConfirmed = window.confirm("Are you sure want to delete this account?");
+      
+        if (isConfirmed) {
+            axios.delete(config.apiUrl + '/account/delete/' + id).then(response => {
+                this.props.history.push('/account');
+            })
+        }
+     
+    }
+
+
+
     render() {
 
         let errStyle = {
@@ -127,42 +119,60 @@ export class EditAccount extends Component
         }
 
         return(
-            <div className="container">
-            <Card>
-            <span className="card-title">Edit Account</span>
-                <br/>
-                <Row>
-                    <div style={errStyle}>{this.state.error.accountName}</div>
-                    <label>ACCOUNT NAME</label>
-                    <Input s={12} name="accountName" onChange={this.onValueChange} 
-                      value = {this.state.accountName}/>
-                </Row>
-                <Row>
-                <div style={errStyle}>{this.state.error.type}</div>
-                     <label>TYPE</label>
-                    <Input type='select' s={12} name="type" value={this.state.type} 
-                        onChange={this.onValueChange} >
-                        <option disabled selected>Select Type</option>
-                        {this.state.types.map(t=> 
-                            <option key={t} value={t}>{t}</option>    
-                        )}
-                    </Input>
-                </Row>
-                <Row>
-                    <div style={errStyle}>{this.state.error.balance}</div>
-                    <label>BALANCE</label>
-                    <Input s={12} type='number' name="balance" onChange={this.onValueChange} 
-                        value={this.state.balance}/>
-                </Row>
 
-                <br/>
-               
-                <Button waves="light" onClick={this.updateAccount}>UPDATE</Button>&nbsp;&nbsp;&nbsp;
-                <Button className="btn waves-effect waves-light red lighten-2" onClick={this.deleteAccount}>DELETE</Button>
+            <div>
 
-            </Card>
-        </div>
+            <Header/>
+              <br/>
+            
+            <div class="col d-flex justify-content-center">
+                <Card style={{ width: '60rem' }}>
+                    <Card.Body>
+
+                         <h3><small>Edit Account</small></h3>
+                        <br/><br/>
+
+                        <Form.Group controlId="formExpense">
+
+                            <Form.Label>Account Name</Form.Label>
+                            <Form.Control type="text" name="accountName" onChange={this.onValueChange} value={this.state.accountName}/>
+                            <div style={errStyle}>{this.state.error.accountName}</div>
+                            <br/>
+                            
+                            <Form.Label>Type</Form.Label>
+                            <Form.Control as="select" value={this.state.type} name="type" onChange={this.onValueChange} value={this.state.type}>
+                                <option value="" selected>Please Select</option>
+                                {this.state.types.map(t=> 
+                                    <option value={t} selected>{t}</option>
+                                )}
+                            </Form.Control>
+                            <div style={errStyle}>{this.state.error.type}</div>
+                            <br/>
+
+                            <Form.Label>Balance</Form.Label>
+                            <Form.Control type="number" name="balance" onChange={this.onValueChange} value={this.state.balance}/>
+                            <div style={errStyle}>{this.state.error.balance}</div>
+                            <br/>
+
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control type="text" name="description" onChange={this.onValueChange} value={this.state.description}/>
+                            <br/>
+
+                        </Form.Group>     
+
+                        <br/><br/>
+                        <Button variant="primary" onClick={this.updateAccount}>Update</Button> &nbsp;
+                        <Button variant="danger" onClick={this.deleteAccount}>Delete</Button>
+                        
+                   
+                    </Card.Body>
+                </Card>
+        
+           </div>
+
+            </div>
         )
     }
+
 
 }

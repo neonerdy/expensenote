@@ -1,118 +1,117 @@
-
 import React, {Component} from 'react';
 import axios from 'axios';
-import {Input,Button, Card,Row, Collection, CollectionItem} from 'react-materialize';
+import {Button,Card,CardColumns} from 'react-bootstrap';
 import config from './Config';
+import {Header} from './Header';
+
 
 
 export class Account extends Component
 {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            initialAccounts: [],
-            accounts: []
-        }
+  constructor(props) {
+    super(props);
+    this.state = {
+      accounts: [],
     }
 
-    componentDidMount() {
-        this.getAllAccounts();
-    }
+  }
 
-    getAllAccounts = () => {
-        axios.get(config.apiUrl + "/api/account/getall").then(response => {
-            this.setState({
-                initialAccounts: response.data,
-                accounts: response.data
-            })
 
-            console.log(response.data);
+  componentDidMount() {
+    this.getAccounts();
+  }
+
+
+  getAccounts = () => {
+      axios.get(config.apiUrl + '/account').then(response=> {
+        this.setState({
+          accounts: response.data
         })
+      })
+  }
+
+
+  addAccount = () => {
+    this.props.history.push('/add-account');
+  }
+
+
+  renderAccount = (type) => {
+    if (type === 'Cash') {
+      return 'primary'
+    } else if (type === 'Bank') {
+      return 'info'
+    }else if (type === 'Credit Card') {
+      return 'danger'
     }
 
-    onSearchChange = (e) => {
+  }
 
-        let filteredAccount = this.state.initialAccounts.filter(account => account.accountName.toLowerCase()
-            .includes(e.target.value.toLowerCase()) || 
-            account.type.toLowerCase().includes(e.target.value.toLowerCase()));
-             
-        if (e.target.value == '')
-        {
-            this.setState( {
-                accounts: this.state.initialAccounts
-            })
-        }
-        else {
-            this.setState( {
-                accounts: filteredAccount
-            })
-    
-        }
+
+  editAccount = (id) => {
+    this.props.history.push('/edit-account/' + id);
+  }
+
+
+  render() {
+
+    let totalBalance = 0;
+    this.state.accounts.map(account=> 
+        totalBalance += account.balance
+    )
+
+    return(
+      <div>
+        <Header/>
+       <br/>
+      <div class="col d-flex justify-content-center">
+
+ 
+      <Card style={{ width: '60rem' }}>
         
-    }
+        <Card.Body>
+
+          <h3><small>View <b>{this.state.accounts.length}</b> Accounts, total balance : <b>{totalBalance}</b></small></h3>
+          <br/>
+          <Button variant="outline-success" onClick={this.addAccount}>Add Account</Button>
+          <br/><br/> 
+        
+          <CardColumns>
+
+            {this.state.accounts.map(a=> 
+
+              <Card bg={this.renderAccount(a.type)} text="white" style={{ width: '18rem',  cursor: 'pointer' }} onClick={()=>this.editAccount(a.id)}>
+                <Card.Header>{a.type.toUpperCase()}</Card.Header>
+                <Card.Body>
+                  <Card.Title>{a.accountName}</Card.Title>
+                  <Card.Text>
+                      <h1><small>{a.balance}</small></h1>
+                      Balance
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            )}
 
 
-    renderIcon = (account) => {
-        if (account.type =="Cash") {
-            return(
-                <i className="material-icons circle pink">account_balance_wallet</i>
-            )
-        } else if (account.type =="Bank") {
-            return(
-                <i className="material-icons circle  blue lighten-1">account_balance</i>
-            )
-        } else if (account.type =="Credit Card") {
-            return(
-                <i className="material-icons circle purple">credit_card</i>
-            )
-        }
-    }
+  
+        </CardColumns>
 
-    addAccount = () => {
-        this.props.history.push("/add-account");
-    }
+     </Card.Body>
+  </Card>
 
-    editAccount = (id) => {
-        this.props.history.push("/edit-account/" + id);
-        console.log(id);
-       
-    }
+</div>
+
+      
+        
+
     
 
-    render() {
 
-        let totalBalance = 0;
-        this.state.accounts.forEach(account=> 
-            totalBalance += account.balance
-        )
-
-        totalBalance = totalBalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+       
+      </div>
+    )
+  }
 
 
-        return(
-            <div className="container">
-                <Card>
-                    <span className="card-title">View <b>{this.state.accounts.length}</b> Accounts, total balance :  <b>{totalBalance}</b> </span>
-                    <br/>
-                    <Button waves="light" onClick={this.addAccount}>ADD ACCOUNT</Button>
-                    <Input placeholder="Search Account" onChange={this.onSearchChange}/>
-                    
-                    <Collection>
-                    {this.state.accounts.map(account=>
-                        <CollectionItem className="avatar" key={account.id} onClick={()=>this.editAccount(account.id)}>
-                            {this.renderIcon(account)}
-                            <span className="secondary-content">{account.balance}</span>
-                            <div className="title">{account.accountName}</div>
-                            <div>{account.type}</div>
-
-                        </CollectionItem>        
-                    )}
-                    </Collection>
-
-
-                </Card>
-            </div>
-        )
-    }
 }

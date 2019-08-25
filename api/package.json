@@ -1,0 +1,19 @@
+{
+  "name": "expensenote.api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neonerdy/expensenote.git"
+  },
+  "author": "Ariyanto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/neonerdy/expensenote/issues"
+  },
+  "homepage": "https://github.com/neonerdy/expensenote#readme"
+}

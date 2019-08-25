@@ -1,0 +1,70 @@
+-- Table: public.accounts
+
+-- DROP TABLE public.accounts;
+
+CREATE TABLE public.accounts
+(
+    id uuid NOT NULL,
+    account_name character varying(50) COLLATE pg_catalog."default",
+    type character varying(15) COLLATE pg_catalog."default",
+    balance numeric,
+    description character varying(100) COLLATE pg_catalog."default",
+    CONSTRAINT accounts_pkey PRIMARY KEY (id)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.accounts
+    OWNER to postgres;
+
+
+
+
+-- Table: public.categories
+
+-- DROP TABLE public.categories;
+
+CREATE TABLE public.categories
+(
+    id uuid NOT NULL,
+    category_name character varying(50) COLLATE pg_catalog."default",
+    "group" character varying(50) COLLATE pg_catalog."default",
+    monthly_budget numeric,
+    CONSTRAINT categories_pkey PRIMARY KEY (id)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.categories
+    OWNER to postgres;
+
+
+
+-- Table: public.expenses
+
+-- DROP TABLE public.expenses;
+
+CREATE TABLE public.expenses
+(
+    id uuid NOT NULL,
+    category_id uuid,
+    account_id uuid,
+    date timestamp without time zone,
+    description character varying(100) COLLATE pg_catalog."default",
+    amount numeric,
+    CONSTRAINT expenses_pkey PRIMARY KEY (id)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.expenses
+    OWNER to postgres;
+
+
+

@@ -1,33 +1,33 @@
-
 import React, {Component} from 'react';
-import {Navbar,NavItem} from 'react-materialize';
-import {NavLink, Link} from 'react-router-dom';
+import {Navbar,Nav} from 'react-bootstrap';
+import {Link} from 'react-router-dom';
+
 
 export class Header extends Component
 {
-   constructor(props) {
-        super(props);
-
-    }
 
     render() {
 
-        const title = ()=> {
-            return(
-                <span>&nbsp;&nbsp;expense<b>note</b></span>
-            )
-        }
-
         return(
             <div>
-                <Navbar brand={title()} right className="green">
-                    <li><Link to="/expense">Expense</Link ></li>
-                    <li><Link to="/account">Account</Link ></li>
-                    <li><Link to="/category">Category</Link ></li>
-                    <li><Link to="/chart">Chart</Link ></li>
+
+                <Navbar bg="success" variant="dark">
+                    <Navbar.Brand href="#"><h2><small>expense<b>note</b></small></h2></Navbar.Brand>
+                    <Nav>
+                        <Nav.Link><Link to="/expense"><div style={{color:'white'}}>Expense</div></Link></Nav.Link>
+                        <Nav.Link><Link to="/account"><div style={{color:'white'}}>Account</div></Link></Nav.Link>
+                        <Nav.Link><Link to="/category"><div style={{color:'white'}}>Category</div></Link></Nav.Link>
+                        <Nav.Link><Link to="/chart"><div style={{color:'white'}}>Chart</div></Link></Nav.Link>
+                     </Nav>
+   
                 </Navbar>
+                
+
             </div>
         )
     }
+
+
+
 
 }
