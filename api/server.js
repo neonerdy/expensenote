@@ -68,6 +68,10 @@ app.get('/expense/monthly', (req,res)=> {
     expense.getMonthlyExpense(req,res);
 })
 
+app.post('/expense/save', (req,res)=> {
+    expense.saveExpense(req,res);
+})
+
 
 
 

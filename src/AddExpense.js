@@ -75,7 +75,7 @@ export class AddExpense extends Component
         } 
 
         if (this.state.amount == '') {
-            error.amount = 'Balance is required';
+            error.amount = 'Amount is required';
             isValid = false;
         }
       
@@ -113,6 +113,11 @@ export class AddExpense extends Component
 
     render()
     {
+
+        let errStyle = {
+            color: 'darkred'
+        }
+
         return(
             <div>
                 <Header/>
@@ -128,30 +133,36 @@ export class AddExpense extends Component
                         <Form.Group controlId="formExpense">
 
                             <Form.Label>Category Name</Form.Label>
-                            <Form.Control as="select" name="categoryId">
+                            <Form.Control as="select" name="categoryId" onChange={this.onValueChange}>
                                 <option value="" selected>Please Select</option>
                                 {this.state.categories.map(c=> 
                                     <option value={c.id}>{c.categoryName}</option>
                                 )}
                             </Form.Control>
+                            <div style={errStyle}>{this.state.error.categoryId}</div>
                             <br/>
+
                             <Form.Label>Account Name</Form.Label>
-                            <Form.Control as="select" name="accountId">
-                                <option value="" selected>Please Select</option>
-                                {this.state.accounts.map(a=> 
-                                    <option value={a.id}>{a.accountName}</option>
-                                )}
-                                </Form.Control>
+                            <Form.Control as="select" name="accountId" onChange={this.onValueChange}>
+                            <option value="" selected>Please Select</option>
+                            {this.state.accounts.map(a=> 
+                                <option value={a.id}>{a.accountName}</option>
+                            )}
+                            </Form.Control>
+                            <div style={errStyle}>{this.state.error.accountId}</div>
+                       
                             <br/>
                             <Form.Label>Amount</Form.Label>
-                            <Form.Control type="number"/>
+                            <Form.Control type="number" name="amount" onChange={this.onValueChange}/>
+                            <div style={errStyle}>{this.state.error.amount}</div>
                             <br/>
-                            <Form.Label>Notes</Form.Label>
-                            <Form.Control type="text"/>
+
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control type="text" name="description" onChange={this.onValueChange}/>
                         </Form.Group>     
 
                         <br/><br/>
-                        <Button variant="primary">Save Expense</Button>
+                        <Button variant="primary" onClick={this.saveExpense}>Save Expense</Button>
                     
                     </Card.Body>
                 </Card>

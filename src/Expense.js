@@ -12,6 +12,7 @@ export class Expense extends Component
     constructor(props) {
         super(props);
         this.state = {
+            initialExpenses: [],
             expenses: []
         }
      
@@ -25,6 +26,7 @@ export class Expense extends Component
     getExpenses =()=> {
         axios.get(config.apiUrl + '/expense').then(response=> {
             this.setState({
+                initialExpenses: response.data,
                 expenses: response.data
             })
             
@@ -50,11 +52,37 @@ export class Expense extends Component
     }
 
 
+    onSearchChange = (e) => {
+
+        let filteredExpense = this.state.initialExpenses.filter(expense => expense.categoryName.toLowerCase()
+            .includes(e.target.value.toLowerCase()) || 
+             expense.date.includes(e.target.value) ||
+             expense.accountName.toLowerCase().includes(e.target.value.toLowerCase()) ||
+             expense.categoryGroup.toLowerCase().includes(e.target.value.toLowerCase()));
+             
+        if (e.target.value == '')
+        {
+            this.setState( {
+                expenses: this.state.initialExpenses
+            })
+        }
+        else {
+            this.setState( {
+                expenses: filteredExpense
+            })
+    
+        }
+        
+    }
+   
+
+
+
     render() {
 
         let totalExpenses = 0
         this.state.expenses.map(e=> 
-            totalExpenses += totalExpenses + e.amount
+            totalExpenses += e.amount
         )
 
         return(
@@ -68,7 +96,7 @@ export class Expense extends Component
                             <h3><small>View <b>{this.state.expenses.length}</b> Expenses, total amount : <b>{totalExpenses}</b></small></h3>
                             <br/>
                           
-                            <Form.Control type="text" placeholder="Search expense ..."/>
+                            <Form.Control type="text" placeholder="Search expense ..." onChange={this.onSearchChange}/>
                             
                             <br/>
                             <Button variant="outline-danger" onClick={this.addExpense}>Add Expense</Button> 
@@ -77,6 +105,7 @@ export class Expense extends Component
                             <Table  striped>
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th></th>
                                     <th style={{color:'grey'}}>DATE</th>
                                     <th style={{color:'grey'}}>DESCRIPTION</th>
@@ -87,8 +116,9 @@ export class Expense extends Component
                                 {this.state.expenses.map(e=> 
                                 <tr>
                                     <td>{this.renderOverBudget(e)}</td>     
+                                    <td>{e.categoryGroup.toUpperCase()}</td>
                                     <td>{moment(e.date).format('MM/DD/YYYY')}</td>
-                                    <td><a href="#">{e.categoryName} from {e.accountName}</a></td>
+                                    <td><a href="#!">{e.categoryName} from {e.accountName}</a></td>
                                     <td>{e.amount}</td>
                                 </tr>
                                 )}

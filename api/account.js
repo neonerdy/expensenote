@@ -57,8 +57,8 @@ module.exports = {
 
     getAccountBalance : (accountId, callback) => {
 
-        pool.query('SELECT * FROM accounts WHERE id=$1', [accountId], (err,results)=> {
-            callback(err,results.rows[0]);
+        pool.query('SELECT balance FROM accounts WHERE id=$1', [accountId], (err,results)=> {
+            callback(err,results.rows[0].balance);
         })
 
     },
@@ -106,8 +106,12 @@ module.exports = {
 
     
     updateAccountBalance : (accountId,lastBalance, callback) => {
-        pool.query('UPDATE accounts SET balance=$1 WHERE account_id=$2',[accountId,lastBalance], (err,result)=> {
-            callback(err,result);
+        
+        console.log(accountId + "-" + lastBalance);
+
+        pool.query('UPDATE accounts SET balance=$2 WHERE id=$1',[accountId,lastBalance], (err,result)=> {
+            console.log(result.rows[0]);
+            callback(err,result.rows[0]);
         })
     },
 

@@ -15,6 +15,7 @@ module.exports = {
         expense.id = results.rows[i].id;
         expense.date = results.rows[i].date;
         expense.categoryId = results.rows[i].category_id;
+        expense.categoryGroup = results.rows[i].category_group;
         expense.categoryName = results.rows[i].category_name;
         expense.monthlyBudget = results.rows[i].monthly_budget;
         expense.accountId = results.rows[i].account_id;
@@ -54,7 +55,7 @@ module.exports = {
             + 'ORDER BY date DESC';
         */
 
-       let sql = 'SELECT e.*, c.category_name, a.account_name, c.monthly_budget FROM expenses e INNER JOIN categories c ON e.category_id = c.id '
+       let sql = 'SELECT e.*, c.group AS category_group,c.category_name, a.account_name, c.monthly_budget FROM expenses e INNER JOIN categories c ON e.category_id = c.id '
                 + 'INNER JOIN accounts a ON e.account_id = a.id ORDER BY date DESC';
             
         
@@ -85,7 +86,7 @@ module.exports = {
     getMonthlyExpense : (req,res) => {
 
         let sql = 'SELECT c.category_name, SUM(e.amount) AS total FROM expenses e INNER JOIN categories '
-                + 'c ON e.category_id = c.id GROUP BY c.id';
+                + 'c ON e.category_id = c.id GROUP BY c.id ORDER BY c.category_name';
         
                 pool.query(sql, (err,results)=>{
             if (err) throw err;
@@ -97,13 +98,15 @@ module.exports = {
     saveExpense : (req,res) => {
 
         let expense = {
-            id: uuid.v4,
-            date: req.body.date,
+            id: uuid.v4(),
+            date: new Date(),
             categoryId: req.body.categoryId,
             accountId: req.body.accountId,
             amount: req.body.amount,
             description: req.body.description
         }
+
+        console.log(expense);
 
         let sql = 'INSERT INTO expenses (id,date,category_id,account_id,amount,description) VALUES ($1,$2,$3,$4,$5,$6)';
         let values = [expense.id,expense.date,expense.categoryId,expense.accountId,expense.amount,expense.description];
@@ -114,16 +117,21 @@ module.exports = {
             account.getAccountBalance(expense.accountId, (err,result)=> {
                 if (err) throw err;
 
-                let accountBalance = result;
-                let lastBalance = accountBalance - expense.amount;
+                console.log("balance=" + result);
+                console.log("amount=" + expense.amount);
+                
+
+                let accountBalance = parseFloat(result);
+                let lastBalance = accountBalance - parseFloat(expense.amount);
 
                 account.updateAccountBalance(expense.accountId, lastBalance, (err,result)=> {
                     if (err) throw err;
-                    res.json(result);
                 })
            
             })
 
+            res.json(result);
+        
         })
 
 
