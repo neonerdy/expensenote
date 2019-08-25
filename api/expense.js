@@ -4,6 +4,7 @@ const uuid = require('uuid');
 const Pool = require('pg').Pool
 const pool = new Pool(config);
 const account = require('./account');
+const moment = require('moment');
 
 module.exports = {
 
@@ -13,7 +14,7 @@ module.exports = {
         let expense = {};
 
         expense.id = results.rows[i].id;
-        expense.date = results.rows[i].date;
+        expense.date = moment(results.rows[i].date).format('MM/DD/YYYY');
         expense.categoryId = results.rows[i].category_id;
         expense.categoryGroup = results.rows[i].category_group;
         expense.categoryName = results.rows[i].category_name;
@@ -55,12 +56,12 @@ module.exports = {
             + 'ORDER BY date DESC';
         */
 
-       let sql = 'SELECT e.*, c.group AS category_group,c.category_name, a.account_name, c.monthly_budget FROM expenses e INNER JOIN categories c ON e.category_id = c.id '
-                + 'INNER JOIN accounts a ON e.account_id = a.id ORDER BY date DESC';
-            
+       let sql = 'SELECT e.*, c.group AS category_group,c.category_name, a.account_name, c.monthly_budget FROM expenses e '
+               + 'INNER JOIN categories c ON e.category_id = c.id '
+               + 'INNER JOIN accounts a ON e.account_id = a.id ORDER BY date DESC';
+          
         
         //let values = [filter.month,filter.year];
-
 
         pool.query(sql, (err,results)=> {
             if (err) throw err;
@@ -77,7 +78,16 @@ module.exports = {
 
         pool.query('SELECT * FROM expenses WHERE id=$1', [id], (err,results)=>{
             if (err) throw err;
-            res.json(results.rows[0]);
+            
+            let expense = {};
+            
+            expense.id = results.rows[0].id;
+            expense.categoryId = results.rows[0].category_id;
+            expense.accountId = results.rows[0].account_id;
+            expense.amount = results.rows[0].amount;
+            expense.description = results.rows[0].description;
+
+            res.json(expense);
         })
 
     },
@@ -88,8 +98,8 @@ module.exports = {
         let sql = 'SELECT c.category_name, SUM(e.amount) AS total FROM expenses e INNER JOIN categories '
                 + 'c ON e.category_id = c.id GROUP BY c.id ORDER BY c.category_name';
         
-                pool.query(sql, (err,results)=>{
-            if (err) throw err;
+        pool.query(sql, (err,results)=>{
+           if (err) throw err;
             res.json(results.rows);
         })
     },
@@ -116,11 +126,7 @@ module.exports = {
 
             account.getAccountBalance(expense.accountId, (err,result)=> {
                 if (err) throw err;
-
-                console.log("balance=" + result);
-                console.log("amount=" + expense.amount);
-                
-
+             
                 let accountBalance = parseFloat(result);
                 let lastBalance = accountBalance - parseFloat(expense.amount);
 
@@ -145,6 +151,7 @@ module.exports = {
             date: req.body.date,
             categoryId: req.body.categoryId,
             accountId: req.body.accountId,
+            currentAmount: req.body.currentAmount,  
             amount: req.body.amount,
             description: req.body.description
         }
@@ -154,6 +161,27 @@ module.exports = {
 
         pool.query(sql,values, (err,result)=> {
             if (err) throw err;
+
+            account.getAccountBalance(expense.accountId, (err,result)=> {
+                if (err) throw err;
+
+                let accountBalance = parseFloat(result);
+                let lastBalance = 0;
+                let amountTemp = 0;
+                
+                if (expense.amount > expense.currentAmount) {
+                    amountTemp = parseFloat(expense.amount) - parseFloat(expense.currentAmount);
+                    lastBalance = accountBalance - amountTemp;
+                } else {
+                    amountTemp = parseFloat(expense.currentAmount) - parseFloat(expense.amount);
+                    lastBalance = accountBalance + amountTemp;               
+                }
+
+                account.updateAccountBalance(expense.accountId, lastBalance, (err,result)=> {
+                    if (err) throw err;
+                })
+            })
+
             res.json(result);
         })
 
@@ -162,20 +190,22 @@ module.exports = {
 
     deleteExpense : (req,res) => {
 
-        let id = req.params.id;
-        let accountId = req.params.accountId;
-        let amount = req.params.amount;
+        
+        let expense = {
+            id:  req.body.id,
+            accountId:  req.body.accountId,
+            amount:  req.body.amount
+        }
+        
+        pool.query('DELETE * FROM expenses WHERE id=$id', [expense.id], (err,result)=> {
 
-
-        pool.query('DELETE * FROM expenses WHERE id=$id', [id], (err,result)=> {
-
-            account.getAccountBalance(accountId, (err,result)=> {
+            account.getAccountBalance(expense.accountId, (err,result)=> {
                 if (err) throw err;
 
-                let accountBalance = result;
-                let lastBalance = accountBalance + amount;
+                let accountBalance = parseFloat(result);
+                let lastBalance = accountBalance + parseFloat(expense.amount);
                 
-                account.updateAccountBalance(accountId, lastBalance, (err,result)=> {
+                account.updateAccountBalance(expense.accountId, lastBalance, (err,result)=> {
                     if (err) throw err;
                     res.json(result);
                 })

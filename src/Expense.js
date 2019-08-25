@@ -36,8 +36,13 @@ export class Expense extends Component
 
 
     addExpense = () => {
-        this.props.history.push("/add-expense");
+        this.props.history.push('/add-expense');
     }
+
+    editExpense = (id) => {
+        this.props.history.push('/edit-expense/' + id);
+    }
+
 
     renderOverBudget = (e) => {
 
@@ -56,7 +61,7 @@ export class Expense extends Component
 
         let filteredExpense = this.state.initialExpenses.filter(expense => expense.categoryName.toLowerCase()
             .includes(e.target.value.toLowerCase()) || 
-             expense.date.includes(e.target.value) ||
+             expense.date.toLowerCase().includes(e.target.value) ||
              expense.accountName.toLowerCase().includes(e.target.value.toLowerCase()) ||
              expense.categoryGroup.toLowerCase().includes(e.target.value.toLowerCase()));
              
@@ -117,8 +122,8 @@ export class Expense extends Component
                                 <tr>
                                     <td>{this.renderOverBudget(e)}</td>     
                                     <td>{e.categoryGroup.toUpperCase()}</td>
-                                    <td>{moment(e.date).format('MM/DD/YYYY')}</td>
-                                    <td><a href="#!">{e.categoryName} from {e.accountName}</a></td>
+                                    <td>{e.date}</td>
+                                    <td><a href="#!" onClick={()=>this.editExpense(e.id)}>{e.categoryName} from {e.accountName}</a></td>
                                     <td>{e.amount}</td>
                                 </tr>
                                 )}

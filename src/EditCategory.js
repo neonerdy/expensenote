@@ -92,7 +92,7 @@ export class EditCategory extends Component
     deleteCategory = () => {
 
         let id = this.props.match.params.id;
-        let isConfirmed = window.confirm("Are you sure want to delete this account?");
+        let isConfirmed = window.confirm("Are you sure want to delete this category?");
         
         if (isConfirmed) {
             axios.delete(config.apiUrl + '/category/delete/' + id).then(response => {

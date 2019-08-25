@@ -64,13 +64,26 @@ app.get('/expense', (req,res)=> {
     expense.getExpenses(req,res);
 })
 
-app.get('/expense/monthly', (req,res)=> {
+app.get('/expense/:id', (req,res)=> {
+    expense.getExpenseById(req,res);
+})
+
+app.get('/expense/sum/monthly', (req,res)=> {
     expense.getMonthlyExpense(req,res);
 })
 
 app.post('/expense/save', (req,res)=> {
     expense.saveExpense(req,res);
 })
+
+app.put('/expense/update', (req,res)=> {
+    expense.updateExpense(req,res);
+})
+
+app.post('/expense/delete', (req,res)=> {
+    expense.deleteExpense(req,res);
+})
+
 
 
 

@@ -23,7 +23,7 @@ export class Chart extends Component
     }
 
     getMonthlyExpenses  = () => {
-        axios.get(config.apiUrl + '/expense/monthly').then(response => {
+        axios.get(config.apiUrl + '/expense/sum/monthly').then(response => {
            
             let totalExpenses = 0;
 

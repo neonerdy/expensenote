@@ -8,7 +8,9 @@ import {AddCategory} from './AddCategory';
 import {AddAccount} from './AddAccount';
 import {EditAccount} from './EditAccount';
 import {EditCategory} from './EditCategory';
+import {EditExpense} from './EditExpense';
 import {Chart} from './Chart';
+
 
 export default class App extends Component
 {
@@ -26,8 +28,7 @@ export default class App extends Component
              <Route exact path="/add-category" component={AddCategory}/>
              <Route exact path="/edit-account/:id" component={EditAccount}/>
              <Route exact path="/edit-category/:id" component={EditCategory}/>
-           
-
+             <Route exact path="/edit-expense/:id" component={EditExpense}/>
       </div>
     )
   }
