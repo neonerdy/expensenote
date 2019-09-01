@@ -197,6 +197,8 @@ module.exports = {
             amount:  req.body.amount
         }
 
+        console.log(expense);
+
         pool.query('DELETE FROM expenses WHERE id=$1', [expense.id], (err,result)=> {
 
             if (err) throw err;
