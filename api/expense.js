@@ -196,8 +196,10 @@ module.exports = {
             accountId:  req.body.accountId,
             amount:  req.body.amount
         }
-        
-        pool.query('DELETE * FROM expenses WHERE id=$id', [expense.id], (err,result)=> {
+
+        pool.query('DELETE FROM expenses WHERE id=$1', [expense.id], (err,result)=> {
+
+            if (err) throw err;
 
             account.getAccountBalance(expense.accountId, (err,result)=> {
                 if (err) throw err;
@@ -207,11 +209,12 @@ module.exports = {
                 
                 account.updateAccountBalance(expense.accountId, lastBalance, (err,result)=> {
                     if (err) throw err;
-                    res.json(result);
                 })
 
             })
-
+           
+            res.json(result);
+            
         })
 
     }
