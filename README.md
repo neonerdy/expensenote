@@ -4,6 +4,7 @@ Expense tracker
 
 
 ![Alt text](https://github.com/neonerdy/expensenote/blob/master/account.JPG "Account")
+![Alt text](https://github.com/neonerdy/expensenote/blob/master/chart.JPG "Chart")
 
 
 
