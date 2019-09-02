@@ -12,7 +12,7 @@ Expense tracker
 
 1. git clone https://github.com/neonerdy/expensenote
 3. npm install
-4. npm run
-5. cd expensenote/api
+4. npm start
+5. cd api
 6. node server.js
 
